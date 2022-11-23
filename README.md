@@ -1,2 +1,2 @@
-NEAR Protocol <> Ethereum bridge
---------------------------------
+NEAR Protocol <> Ethereum
+-------------------------
