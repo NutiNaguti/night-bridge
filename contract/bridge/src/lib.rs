@@ -3,32 +3,25 @@ use near_sdk::env::predecessor_account_id;
 use near_sdk::{self, collections::UnorderedSet, AccountId};
 use near_sdk::{near_bindgen, BorshStorageKey, PanicOnDefault};
 
-#[derive(Debug, BorshSerialize, BorshDeserialize)]
-pub struct Request {
-    amount: u128,
-    user: AccountId,
+#[derive(BorshSerialize, BorshDeserialize, BorshStorageKey)]
+pub enum StorageKey {
+    AdminList,
 }
 
 #[near_bindgen]
 #[derive(Debug, BorshSerialize, BorshDeserialize, PanicOnDefault)]
 pub struct Bridge {
-    queu: UnorderedSet<Request>,
+    token_address: AccountId,
     admin_list: UnorderedSet<AccountId>,
-}
-
-#[derive(BorshSerialize, BorshDeserialize, BorshStorageKey)]
-pub enum StorageKey {
-    Queu,
-    AdminList,
 }
 
 #[near_bindgen]
 impl Bridge {
     #[init]
     #[private]
-    pub fn init() -> Self {
+    pub fn init(token_address: AccountId) -> Self {
         Self {
-            queu: UnorderedSet::new(StorageKey::Queu),
+            token_address,
             admin_list: UnorderedSet::new(StorageKey::AdminList),
         }
     }
@@ -37,11 +30,15 @@ impl Bridge {
         self.admin_list.contains(&predecessor_account_id())
     }
 
-    pub fn withdrow_tokens(&mut self) {
+    pub fn set_token_address(&mut self, token_address: AccountId) {
+        self.token_address = token_address;
+    }
+
+    pub fn mint(&mut self, address: String, amount: u128) {
         unimplemented!()
     }
 
-    pub fn send_tokens(&mut self, address: String, amount: u128) {
+    pub fn burn(&mut self, amount: u128) {
         unimplemented!()
     }
 }
