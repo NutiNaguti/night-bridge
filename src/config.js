@@ -1,4 +1,4 @@
-import { keyStores } from 'near-api-js';
+import { keyStores } from "near-api-js";
 
 /**
  * Function that returns a NEAR connection configuration object based on the given environment.
@@ -6,34 +6,34 @@ import { keyStores } from 'near-api-js';
  * @param  {string} environment='testnet'
  * @return {object}
  */
-export const getConfig = (environment = 'testnet') => {
+export const getConfig = (environment = "testnet") => {
   switch (environment) {
-    case 'mainnet':
+    case "mainnet":
       return {
-        networkId: 'mainnet',
+        networkId: "mainnet",
         keyStore: new keyStores.BrowserLocalStorageKeyStore(),
-        nodeUrl: 'https://rpc.mainnet.near.org',
-        walletUrl: 'https://wallet.mainnet.near.org',
-        helperUrl: 'https://helper.mainnet.near.org',
-        explorerUrl: 'https://explorer.mainnet.near.org',
+        nodeUrl: "https://rpc.mainnet.near.org",
+        walletUrl: "https://wallet.mainnet.near.org",
+        helperUrl: "https://helper.mainnet.near.org",
+        explorerUrl: "https://explorer.mainnet.near.org",
       };
-    case 'betanet':
+    case "betanet":
       return {
-        networkId: 'betanet',
+        networkId: "betanet",
         keyStore: new keyStores.BrowserLocalStorageKeyStore(),
-        nodeUrl: 'https://rpc.betanet.near.org',
-        walletUrl: 'https://wallet.betanet.near.org',
-        helperUrl: 'https://helper.betanet.near.org',
+        nodeUrl: "https://rpc.betanet.near.org",
+        walletUrl: "https://wallet.betanet.near.org",
+        helperUrl: "https://helper.betanet.near.org",
       };
-    case 'testnet':
+    case "testnet":
     default:
       return {
-        networkId: 'testnet',
+        networkId: "testnet",
         keyStore: new keyStores.BrowserLocalStorageKeyStore(),
-        nodeUrl: 'https://rpc.testnet.near.org',
-        walletUrl: 'https://wallet.testnet.near.org',
-        helperUrl: 'https://helper.testnet.near.org',
-        explorerUrl: 'https://explorer.testnet.near.org',
+        nodeUrl: "https://rpc.testnet.near.org",
+        walletUrl: "https://wallet.testnet.near.org",
+        helperUrl: "https://helper.testnet.near.org",
+        explorerUrl: "https://explorer.testnet.near.org",
       };
   }
 };

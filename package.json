@@ -7,7 +7,9 @@
     "@testing-library/react": "^13.1.1",
     "@testing-library/user-event": "^14.1.1",
     "buffer": "^6.0.3",
+    "ethers": "^5.7.2",
     "near-api-js": "^0.44.2",
+    "prettier": "^2.8.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1"
