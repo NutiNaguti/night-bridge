@@ -1,31 +1,38 @@
 use near_sdk::{
-    self,
+    self, base64,
     borsh::{self, BorshDeserialize, BorshSerialize},
-    collections::UnorderedSet,
-    require,
     store::UnorderedMap,
     PanicOnDefault,
 };
 use near_sdk::{near_bindgen, BorshStorageKey};
+use serde::{Deserialize, Serialize};
+use serde_big_array::{self, BigArray};
 
-pub type TransactionId = [u8; 32];
+mod utils;
+
+type BlockNumber = u64;
+
+#[derive(Serialize, Deserialize)]
+pub struct BloomRequest {
+    block_number: u64,
+    logs: String,
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Serialize)]
+pub struct Bloom {
+    #[serde(with = "BigArray")]
+    logs: [u8; 256],
+}
 
 #[derive(BorshSerialize, BorshStorageKey)]
 enum StorageKey {
-    EventLogs,
-    Topics,
-}
-
-#[derive(Debug, BorshSerialize, BorshDeserialize)]
-pub struct EventLogs {
-    topics: UnorderedSet<Vec<u8>>,
-    block_hash: Vec<u8>,
+    LogsFilter,
 }
 
 #[near_bindgen]
 #[derive(Debug, BorshSerialize, BorshDeserialize, PanicOnDefault)]
 pub struct LiteClient {
-    event_logs: UnorderedMap<TransactionId, EventLogs>,
+    logs_filter: UnorderedMap<BlockNumber, Bloom>,
 }
 
 #[near_bindgen]
@@ -34,41 +41,52 @@ impl LiteClient {
     #[private]
     pub fn init() -> Self {
         Self {
-            event_logs: UnorderedMap::new(StorageKey::EventLogs),
+            logs_filter: UnorderedMap::new(StorageKey::LogsFilter),
         }
     }
 
-    pub fn get_event_logs(&self, transaction_id: [u8; 32]) -> &EventLogs {
-        let transaction_id = transaction_id as TransactionId;
-        match self.event_logs.get(&transaction_id) {
-            Some(logs) => return logs,
-            _ => {
-                panic!("Logs doesn't exist")
+    #[payable]
+    pub fn validate(&mut self, block_number: BlockNumber, _proof: String) -> bool {
+        let bloom = self.logs_filter.get(&block_number).unwrap().logs;
+        let event_signature = near_sdk::env::keccak256("Locked(bytes32)".as_bytes());
+        let mut default_bloom = utils::default();
+        utils::accrue(&mut default_bloom, event_signature.try_into().unwrap());
+
+        for i in 0..utils::BLOOM_SIZE {
+            let a = bloom[i];
+            let b = default_bloom[i];
+            if (a & b) != b {
+                return false;
             }
         }
+        true
     }
 
-    pub fn add_event_logs(
-        &mut self,
-        transaction_id: [u8; 32],
-        topics: Vec<Vec<u8>>,
-        block_hash: Vec<u8>,
-    ) {
-        let mut logs = EventLogs {
-            topics: UnorderedSet::new(StorageKey::Topics),
-            block_hash,
+    pub fn view_filter(&self, block_number: BlockNumber) -> Option<&Bloom> {
+        self.logs_filter.get(&block_number)
+    }
+
+    pub fn insert_filter(&mut self, request: BloomRequest) {
+        let decoded_blooom = base64::decode(&request.logs).unwrap();
+
+        match self.logs_filter.get(&request.block_number) {
+            Some(_) => panic!("Already added"),
+            _ => self.logs_filter.insert(
+                request.block_number,
+                Bloom {
+                    logs: decoded_blooom.try_into().unwrap(),
+                },
+            ),
         };
-
-        for e in topics.iter() {
-            logs.topics.insert(e);
-        }
-
-        self.event_logs.insert(transaction_id, logs);
     }
-}
 
-fn if_caller_is_admin() -> bool {
-    return true;
+    pub fn remove_filter(&mut self, block_number: BlockNumber) {
+        self.logs_filter.remove(&block_number);
+    }
+
+    pub fn test(&self) -> &str {
+        "Hello world!"
+    }
 }
 
 #[cfg(test)]
@@ -77,7 +95,7 @@ mod tests {
     use near_sdk::test_utils::VMContextBuilder;
 
     fn get_context() -> VMContextBuilder {
-        let mut builder = VMContextBuilder::new();
+        let builder = VMContextBuilder::new();
         builder
     }
 }
