@@ -16,7 +16,7 @@ How it's work
 1. The oracle receives block headers from Ethereum and takes only the bloom filter from there. Next, the oracle loads this data into the Lite Node contract in NEAR.
 2. The user accesses the Ethereum smart contract and blocks his tokens there. At this moment, a new event is created in the smart contract function, which contains a hash of three values: block number, user address, and the number of tokens.
 3. The user accesses the smart contract in NAP to get their tokens, and provides the hash generated in the event as proof of the locked tokens.
-4. The smart contract checks for the event by 3 parameters in the bloom filter, and if the proof is valid, mint the specified number of tokens to the user's address.
+4. The smart contract checks for the event by three parameters in the bloom filter, and if the proof is valid, mint the specified number of tokens to the user's address.
 
 Known issues and roadmap
 ------------------------
