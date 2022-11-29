@@ -8,6 +8,8 @@ use serde::{Deserialize, Serialize};
 use serde_big_array::{self, BigArray};
 use uint::unroll;
 
+use crate::utils::log2;
+
 pub const BLOOM_BITS: u32 = 3;
 pub const BLOOM_SIZE: usize = 256;
 
@@ -78,20 +80,4 @@ impl Bloom {
 
         true
     }
-}
-
-fn log2(x: usize) -> u32 {
-    if x <= 1 {
-        return 0;
-    }
-
-    let n = x.leading_zeros();
-    mem::size_of::<usize>() as u32 * 8 - n
-}
-
-pub fn decode_hex(s: &str) -> Result<Vec<u8>, ParseIntError> {
-    (0..s.len())
-        .step_by(2)
-        .map(|i| u8::from_str_radix(&s[i..i + 2], 16))
-        .collect()
 }

@@ -578,7 +578,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "lite-client"
+name = "lite-node"
 version = "1.0.0"
 dependencies = [
  "near-sdk",

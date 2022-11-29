@@ -1,5 +1,5 @@
 [package]
-name = "lite-client"
+name = "lite-node"
 version = "1.0.0"
 authors = ["NutiNaguti <derzhavin.danila@icloud.com>"]
 edition = "2021"

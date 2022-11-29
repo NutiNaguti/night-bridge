@@ -10,6 +10,7 @@ use near_sdk::{near_bindgen, BorshStorageKey};
 use serde::{Deserialize, Serialize};
 
 mod bloom;
+mod utils;
 
 type BlockNumber = u64;
 
@@ -26,12 +27,12 @@ enum StorageKey {
 
 #[near_bindgen]
 #[derive(Debug, BorshSerialize, BorshDeserialize, PanicOnDefault)]
-pub struct LiteClient {
+pub struct LiteNode {
     logs_filter: UnorderedMap<BlockNumber, Bloom>,
 }
 
 #[near_bindgen]
-impl LiteClient {
+impl LiteNode {
     #[init]
     #[private]
     pub fn init() -> Self {
@@ -40,7 +41,7 @@ impl LiteClient {
         }
     }
 
-    // #[payable]
+    #[payable]
     pub fn validate(
         &mut self,
         block_number: u64,
@@ -49,20 +50,20 @@ impl LiteClient {
         proof: String,
     ) -> bool {
         let bloom = self.logs_filter.get(&block_number).unwrap();
+        let eth_contract_address = utils::decode_hex(&eth_contract_address).unwrap();
+        let proof = utils::decode_hex(&proof).unwrap();
 
         let event_signature: [u8; 32] = keccak256(&keccak256(event_signature.as_bytes()))
             .try_into()
             .unwrap();
 
-        let contract_address: [u8; 32] = keccak256(eth_contract_address.as_bytes())
-            .try_into()
-            .unwrap();
+        let contract_address: [u8; 32] = keccak256(&eth_contract_address).try_into().unwrap();
 
-        let proof: [u8; 32] = keccak256(&keccak256(proof.as_bytes())).try_into().unwrap();
+        let proof: [u8; 32] = keccak256(&proof).try_into().unwrap();
 
         bloom.contains_input(event_signature)
-        // & bloom.contains_input(contract_address)
-        // & bloom.contains_input(proof)
+            & bloom.contains_input(contract_address)
+            & bloom.contains_input(proof)
     }
 
     pub fn view_filter(&self, block_number: BlockNumber) -> Option<&Bloom> {
@@ -113,7 +114,7 @@ mod tests {
         26, 2, 5, 70, 97,
     ];
 
-    const PROOF: &str = "3b874d464775b5082b95c98fb5f815494cc129e32c4e8a07a0bb98e710f8c25c";
+    const PROOF: &str = "0x3b874d464775b5082b95c98fb5f815494cc129e32c4e8a07a0bb98e710f8c25c";
     const EVENT_SIGNATURE: &str = "Locked(bytes32)";
     const ETH_CONTRACT_ADDRESS: &str = "0x9431f9bba577B037D97ad6F7086a00eFB572c871";
 
@@ -129,7 +130,7 @@ mod tests {
         let context = get_context(predecessor);
         testing_env!(context.build());
 
-        let mut contract = LiteClient::init();
+        let mut contract = LiteNode::init();
 
         let encoded_logs = encode(LOGS);
         let request = BloomRequest {
@@ -145,10 +146,11 @@ mod tests {
     #[test]
     fn test_validate() {
         let predecessor = "foo".to_string();
-        let context = get_context(predecessor);
+        let mut context = get_context(predecessor);
+        context.attached_deposit(1);
         testing_env!(context.build());
 
-        let mut contract = LiteClient::init();
+        let mut contract = LiteNode::init();
 
         let encoded_logs = encode(LOGS);
         let request = BloomRequest {
