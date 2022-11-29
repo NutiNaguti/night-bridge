@@ -1,10 +1,11 @@
 use external::{fun_coin, line_node, TGAS};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use near_sdk::collections::UnorderedMap;
 use near_sdk::env::{self, predecessor_account_id};
 use near_sdk::{self, collections::UnorderedSet, AccountId};
 use near_sdk::{
     json_types, log, near_bindgen, require, BorshStorageKey, Gas, PanicOnDefault, Promise,
-    PromiseError, ONE_NEAR,
+    PromiseError, ONE_NEAR, ONE_YOCTO,
 };
 
 mod external;
@@ -13,7 +14,15 @@ const VALIDATE_TRANSFER_FEE: u128 = ONE_NEAR;
 
 #[derive(BorshSerialize, BorshDeserialize, BorshStorageKey)]
 pub enum StorageKey {
-    AdminList,
+    AdminSet,
+    TransferMap,
+}
+
+#[derive(Debug, BorshSerialize, BorshDeserialize)]
+pub struct Transfer {
+    near_timestamp: u64,
+    eth_block_number: u64,
+    receiver: AccountId,
 }
 
 #[near_bindgen]
@@ -24,7 +33,8 @@ pub struct Bridge {
     eth_token_address: String,
     near_token_account: AccountId,
     lite_node_account: AccountId,
-    admin_list: UnorderedSet<AccountId>,
+    admin_set: UnorderedSet<AccountId>,
+    validated_transfers: UnorderedMap<String, Transfer>,
 }
 
 #[near_bindgen]
@@ -37,49 +47,84 @@ impl Bridge {
         eth_token_address: String,
         near_token_account: AccountId,
         lite_node_account: AccountId,
+        admin_list: Vec<AccountId>,
     ) -> Self {
+        let mut admin_set = UnorderedSet::new(StorageKey::AdminSet);
+        for e in admin_list.iter() {
+            admin_set.insert(e);
+        }
+
         Self {
             eth_event_signature,
             eth_bridge_address,
             eth_token_address,
             near_token_account,
             lite_node_account,
-            admin_list: UnorderedSet::new(StorageKey::AdminList),
+            admin_set,
+            validated_transfers: UnorderedMap::new(StorageKey::TransferMap),
         }
     }
+
+    pub fn view_storage(
+        &self,
+    ) -> (
+        String,
+        String,
+        String,
+        AccountId,
+        AccountId,
+        Vec<AccountId>,
+        u64,
+    ) {
+        (
+            self.eth_event_signature.clone(),
+            self.eth_bridge_address.clone(),
+            self.eth_token_address.clone(),
+            self.near_token_account.clone(),
+            self.lite_node_account.clone(),
+            self.admin_set.to_vec(),
+            self.validated_transfers.len(),
+        )
+    }
+
+    // =========== From ETH transfer functions ===========
+    // ----------------------------------------------
 
     #[payable]
     pub fn validate_transfer(
         &mut self,
         block_number: u64,
         receiver: AccountId,
-        amount: u128,
         proof: String,
     ) -> Promise {
+        if let None = self.validated_transfers.get(&proof) {
+            panic!("Already completed transfer");
+        }
         let deposit = env::attached_deposit();
         require!(deposit >= VALIDATE_TRANSFER_FEE, "Not enougth funds");
         let promise = line_node::ext(self.lite_node_account.clone())
-            .with_static_gas(Gas(5 * TGAS))
+            .with_static_gas(Gas(10 * TGAS))
             .validate(
                 block_number,
                 self.eth_bridge_address.clone(),
                 self.eth_event_signature.clone(),
-                proof,
+                proof.clone(),
             );
 
         promise.then(
             Self::ext(env::current_account_id())
-                .with_static_gas(Gas(5 * TGAS))
-                .with_attached_deposit(deposit / 2)
-                .validate_callback(receiver, amount),
+                .with_static_gas(Gas(10 * TGAS))
+                .with_attached_deposit(ONE_YOCTO)
+                .validate_callback(block_number, receiver, &proof),
         )
     }
 
     #[private]
     pub fn validate_callback(
-        &self,
+        &mut self,
+        block_number: u64,
         receiver: AccountId,
-        amount: u128,
+        proof: &String,
         #[callback_result] call_result: Result<bool, PromiseError>,
     ) -> Promise {
         if call_result.is_err() {
@@ -90,30 +135,68 @@ impl Bridge {
         log!("call_result: {}", call_result);
 
         if call_result {
+            // TODO
+            let amount = 1;
             let deposit = env::attached_deposit();
             let promise = fun_coin::ext(self.near_token_account.clone())
                 .with_static_gas(Gas(5 * TGAS))
+                //
                 .with_attached_deposit(deposit)
-                .ft_transfer(receiver, json_types::U128(amount), None);
-            promise
+                .ft_transfer(receiver.clone(), json_types::U128(amount), None);
+
+            promise.then(
+                Self::ext(env::current_account_id())
+                    .with_static_gas(Gas(10 * TGAS))
+                    .complete_transfer_callback(block_number, receiver, proof),
+            )
         } else {
             panic!("Proof are invalid");
         }
     }
 
-    pub fn check_admin(&self) -> bool {
-        self.admin_list.contains(&predecessor_account_id())
+    #[private]
+    pub fn complete_transfer_callback(
+        &mut self,
+        #[callback_result] call_result: Result<(), PromiseError>,
+        block_number: u64,
+        receiver: AccountId,
+        proof: &String,
+    ) {
+        if call_result.is_err() {
+            panic!("{:?}", call_result);
+        }
+
+        self.validated_transfers.insert(
+            &proof,
+            &Transfer {
+                near_timestamp: env::block_timestamp(),
+                eth_block_number: block_number,
+                receiver,
+            },
+        );
     }
 
-    pub fn set_token_address(&mut self, token_account: AccountId) {
-        // self.token_account = token_account;
+    // =========== To ETH transfer functions ===========
+    // -------------------------------------------------
+
+    #[payable]
+    pub fn lock(&mut self) {
+        todo!()
     }
 
-    pub fn mint(&mut self, address: String, amount: u128) {
-        unimplemented!()
+    // =========== Admin functions ===========
+    // ---------------------------------------
+
+    pub fn add_new_admin(&mut self, admin_account: AccountId) {
+        require!(self.admin_set.contains(&env::predecessor_account_id()));
+        match self.admin_set.contains(&admin_account) {
+            true => panic!("This account already in adim_set"),
+            false => self.admin_set.insert(&admin_account),
+        };
     }
 
-    pub fn burn(&mut self, amount: u128) {
-        unimplemented!()
+    pub fn withdrow_fees(&self, admin_index: usize) {
+        require!(self.admin_set.contains(&env::predecessor_account_id()));
+        //TODO
     }
 }
