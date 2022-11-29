@@ -78,6 +78,8 @@ impl Contract {
         this
     }
 
+    pub fn mint() {}
+
     fn on_account_closed(&mut self, account_id: AccountId, balance: Balance) {
         log!("Closed @{} with {}", account_id, balance);
     }
