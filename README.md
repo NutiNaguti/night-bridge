@@ -23,7 +23,7 @@ Known issues and roadmap
 
 **! ! ! Yes, I understand that the Bloom filter is a probabilistic data structure and there is a chance of a false positive test result, but firstly, I considered the probability of such a response to be extremely small, and secondly, this is a training project and I strongly do not recommend using this principle in production ! ! !** 
 
- - [x] Build an Oracle
+ - [ ] Build an Oracle
  - [ ] Implement sending tokens from Ethereum to NEAR
  - [ ] Implement sending tokens from NEAR to Ethereum
 
