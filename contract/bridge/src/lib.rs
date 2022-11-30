@@ -1,7 +1,8 @@
 use external::{fun_coin, line_node, TGAS};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::UnorderedMap;
-use near_sdk::env::{self, predecessor_account_id};
+use near_sdk::env;
+use near_sdk::serde::Serialize;
 use near_sdk::{self, collections::UnorderedSet, AccountId};
 use near_sdk::{
     json_types, log, near_bindgen, require, BorshStorageKey, Gas, PanicOnDefault, Promise,
@@ -18,7 +19,8 @@ pub enum StorageKey {
     TransferMap,
 }
 
-#[derive(Debug, BorshSerialize, BorshDeserialize)]
+#[derive(Debug, BorshSerialize, BorshDeserialize, Serialize)]
+#[serde(crate = "near_sdk::serde")]
 pub struct Transfer {
     near_timestamp: u64,
     eth_block_number: u64,
@@ -54,6 +56,10 @@ impl Bridge {
             admin_set.insert(e);
         }
 
+        fun_coin::ext(near_token_account.clone())
+            .with_static_gas(Gas(5 * TGAS))
+            .internal_register(env::current_account_id());
+
         Self {
             eth_event_signature,
             eth_bridge_address,
@@ -65,7 +71,7 @@ impl Bridge {
         }
     }
 
-    pub fn view_storage(
+    pub fn view_state(
         &self,
     ) -> (
         String,
@@ -88,7 +94,11 @@ impl Bridge {
     }
 
     // =========== From ETH transfer functions ===========
-    // ----------------------------------------------
+    // ---------------------------------------------------
+
+    pub fn view_validated_transfer(&self, proof: String) -> Option<Transfer> {
+        self.validated_transfers.get(&proof)
+    }
 
     #[payable]
     pub fn validate_transfer(
@@ -97,7 +107,7 @@ impl Bridge {
         receiver: AccountId,
         proof: String,
     ) -> Promise {
-        if let None = self.validated_transfers.get(&proof) {
+        if let Some(_) = self.validated_transfers.get(&proof) {
             panic!("Already completed transfer");
         }
         let deposit = env::attached_deposit();
@@ -120,6 +130,7 @@ impl Bridge {
     }
 
     #[private]
+    #[payable]
     pub fn validate_callback(
         &mut self,
         block_number: u64,
@@ -135,14 +146,11 @@ impl Bridge {
         log!("call_result: {}", call_result);
 
         if call_result {
-            // TODO
+            // TODO if user doesn't registered may need to register him
             let amount = 1;
-            let deposit = env::attached_deposit();
             let promise = fun_coin::ext(self.near_token_account.clone())
                 .with_static_gas(Gas(5 * TGAS))
-                //
-                .with_attached_deposit(deposit)
-                .ft_transfer(receiver.clone(), json_types::U128(amount), None);
+                .mint(receiver.clone(), json_types::U128(amount));
 
             promise.then(
                 Self::ext(env::current_account_id())
@@ -164,16 +172,17 @@ impl Bridge {
     ) {
         if call_result.is_err() {
             panic!("{:?}", call_result);
+        } else {
+            //TODO
+            self.validated_transfers.insert(
+                &proof,
+                &Transfer {
+                    near_timestamp: env::block_timestamp(),
+                    eth_block_number: block_number,
+                    receiver,
+                },
+            );
         }
-
-        self.validated_transfers.insert(
-            &proof,
-            &Transfer {
-                near_timestamp: env::block_timestamp(),
-                eth_block_number: block_number,
-                receiver,
-            },
-        );
     }
 
     // =========== To ETH transfer functions ===========
@@ -186,6 +195,21 @@ impl Bridge {
 
     // =========== Admin functions ===========
     // ---------------------------------------
+
+    pub fn remove_validated_transfer(&mut self, proof: String) {
+        require!(self.admin_set.contains(&env::predecessor_account_id()));
+        self.validated_transfers.remove(&proof);
+    }
+
+    pub fn set_near_token(&mut self, near_token_account: AccountId) {
+        require!(self.admin_set.contains(&env::predecessor_account_id()));
+        self.near_token_account = near_token_account;
+    }
+
+    pub fn set_lite_node(&mut self, lite_node_account: AccountId) {
+        require!(self.admin_set.contains(&env::predecessor_account_id()));
+        self.lite_node_account = lite_node_account;
+    }
 
     pub fn add_new_admin(&mut self, admin_account: AccountId) {
         require!(self.admin_set.contains(&env::predecessor_account_id()));

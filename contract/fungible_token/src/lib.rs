@@ -78,7 +78,13 @@ impl Contract {
         this
     }
 
-    pub fn mint() {}
+    pub fn mint(&mut self, account_id: AccountId, amount: U128) {
+        self.token.internal_deposit(&account_id, amount.into());
+    }
+
+    pub fn burn(&mut self, account_id: AccountId, amount: U128) {
+        self.token.internal_withdraw(&account_id, amount.into());
+    }
 
     fn on_account_closed(&mut self, account_id: AccountId, balance: Balance) {
         log!("Closed @{} with {}", account_id, balance);

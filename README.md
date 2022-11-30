@@ -1,5 +1,5 @@
 NEAR Protocol 🌉 Ethereum
-===========================
+==========================
 
 This is my educational project to better understand how the Ethereum and NEAR Protocol works.
 The essence of the project is to create a trustless bridge between two chains.
