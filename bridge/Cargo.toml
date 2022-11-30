@@ -1,5 +1,5 @@
 [package]
-name = "fungible-token"
+name = "bridge"
 version = "1.0.0"
 authors = ["NutiNaguti <derzhavin.danila@icloud.com>"]
 edition = "2021"
@@ -10,15 +10,8 @@ crate-type = ["cdylib"]
 [dependencies]
 near-sdk = "4.0.0"
 uint = { version = "0.9.3", default-features = false }
-near-contract-standards = "4.1.1"
+hex-literal = "0.3.4"
 
-[profile.release]
-codegen-units = 1
-opt-level = "z"
-lto = true
-debug = false
-panic = "abort"
-overflow-checks = true
-
-[workspace]
-members = []
+[dev-dependencies]
+ft = { path = "../ft/" }
+lite-node = { path = "../lite_node/" }

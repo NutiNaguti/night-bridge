@@ -219,7 +219,7 @@ impl Bridge {
         };
     }
 
-    pub fn withdrow_fees(&self, admin_index: usize) {
+    pub fn withdrow_fees(&self, _admin_index: usize) {
         require!(self.admin_set.contains(&env::predecessor_account_id()));
         //TODO
     }
