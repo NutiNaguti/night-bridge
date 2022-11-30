@@ -1,4 +1,4 @@
-# NEAR Protocol <> Ethereum
+NEAR Protocol <> Ethereum
 ===========================
 
 This is my educational project to better understand how the Ethereum and NEAR Protocol works.
