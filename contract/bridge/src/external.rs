@@ -17,6 +17,7 @@ trait LiteNode {
 
 #[ext_contract(fun_coin)]
 trait FunCoin {
-    #[payable]
-    fn ft_transfer(&mut self, receiver_id: AccountId, amount: U128, memo: Option<String>);
+    fn internal_register(&mut self, account_id: AccountId);
+    fn mint(&mut self, account_id: AccountId, amount: U128);
+    fn burn(&mut self, account_id: AccountId, amount: U128);
 }
