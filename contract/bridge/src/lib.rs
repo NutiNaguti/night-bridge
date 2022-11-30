@@ -71,7 +71,7 @@ impl Bridge {
         }
     }
 
-    pub fn view_storage(
+    pub fn view_state(
         &self,
     ) -> (
         String,
@@ -148,7 +148,6 @@ impl Bridge {
         if call_result {
             // TODO if user doesn't registered may need to register him
             let amount = 1;
-            let deposit = env::attached_deposit();
             let promise = fun_coin::ext(self.near_token_account.clone())
                 .with_static_gas(Gas(5 * TGAS))
                 .mint(receiver.clone(), json_types::U128(amount));
