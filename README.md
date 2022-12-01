@@ -13,6 +13,8 @@ The bridge consists of four parts:
 
 ## Contracts 
 
+Currently Ethereum and NEAR smart-contracts deployed in testnet (Goerly and Testnet).
+
 | Contract | Address   | Description |
 |    -     |     -     |       -     |
 | FunCoin  | ETH: `0x918DD8e3F443C1a8535d0F6F266EC20E3a9329e2` <br/> NEAR: `dev-1669803669965-75235193778699` | ERC-20 token |
