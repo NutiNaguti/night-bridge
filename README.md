@@ -10,6 +10,16 @@ The bridge consists of four parts:
  - [Oracle](https://github.com/NutiNaguti/relayer)
  - [Frontend](https://github.com/NutiNaguti/crystal-bridge)
 
+
+## Contracts 
+
+| Contract | Address   | Description |
+|    -     |     -     |       -     |
+| FunCoin  | ETH: `0x918DD8e3F443C1a8535d0F6F266EC20E3a9329e2` <br/> NEAR: `dev-1669803669965-75235193778699` | ERC-20 token |
+| Lite Node| NEAR: `dev-1669804361266-30686725939679` | Smart-contract storing Logs Bloom |
+| Bridge   | ETH: `0x9431f9bba577B037D97ad6F7086a00eFB572c871` <br/> NEAR: `call dev-1669803549073-25511761548859` | Smart-contract validating the transer|
+
+
 How it's work
 -------------
 
