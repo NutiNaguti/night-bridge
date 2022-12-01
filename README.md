@@ -1,18 +1,27 @@
-NEAR Protocol 🌉 Ethereum
+Night Bridge
 ==========================
 
+<img src="https://www.svgrepo.com/show/225979/bridge-river.svg" align="left" width="150" heigth="150"/>
+
+<div >
 This is my educational project to better understand how the Ethereum and NEAR Protocol works.
 The essence of the project is to create a trustless bridge between two chains.
+</div>
+
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
 
 The bridge consists of four parts:
  - [Smart contracts in the NEAR](https://github.com/NutiNaguti/near-bridge)
  - [Smart contracts on the Ethereum](https://github.com/NutiNaguti/ethereum-bridge)
  - [Oracle](https://github.com/NutiNaguti/relayer)
  - [Frontend](https://github.com/NutiNaguti/crystal-bridge)
-
-
+ 
 ## Contracts 
-
+ 
 Currently Ethereum and NEAR smart-contracts deployed in testnet (Goerly and Testnet).
 
 | Contract | Address   | Description |
