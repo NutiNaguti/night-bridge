@@ -1,8 +1,8 @@
 use near_sdk::{ext_contract, json_types::U128, AccountId};
 
 pub const TGAS: u64 = 1_000_000_000_000;
-pub const NO_DEPOSIT: u128 = 0;
-pub const XCC_SUCCESS: u64 = 1;
+// pub const NO_DEPOSIT: u128 = 0;
+// pub const XCC_SUCCESS: u64 = 1;
 
 #[ext_contract(line_node)]
 trait LiteNode {

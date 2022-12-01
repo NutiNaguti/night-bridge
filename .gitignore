@@ -31,7 +31,7 @@ yarn-debug.log*
 yarn-error.log*
 yarn.lock
 
-contract/*/target
+target/
 neardev/
 contract/neardev
 

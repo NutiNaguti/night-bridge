@@ -224,3 +224,54 @@ impl Bridge {
         //TODO
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use near_sdk::{test_utils::VMContextBuilder, testing_env};
+
+    const ETH_EVENT_SIGNATURE: &str = "Locked(bytes32)";
+    const ETH_BRIDGE_ADDRESS: &str = "0x9431f9bba577B037D97ad6F7086a00eFB572c871";
+    const ETH_TOKEN_ADDRESS: &str = "0x918DD8e3F443C1a8535d0F6F266EC20E3a9329e2";
+    const NEAR_TOKEN_ACCOUNT: &str = "dev-1669803669965-75235193778699";
+    const LITE_NODE_ACCOUNT: &str = "dev-1669804361266-30686725939679";
+    const ADMIN: &str = "nutinaguti.testnet";
+
+    fn get_context(account_id: AccountId) -> VMContextBuilder {
+        let mut builder = VMContextBuilder::new();
+        builder.predecessor_account_id(account_id);
+        builder
+    }
+
+    #[test]
+    fn test_init() {
+        let predecessor_account_id = "nutinaguti.testnet".parse().unwrap();
+        let context = get_context(predecessor_account_id);
+        testing_env!(context.build());
+
+        let admin_list = vec![ADMIN.parse().unwrap()];
+
+        let contract = Bridge::init(
+            ETH_EVENT_SIGNATURE.to_string(),
+            ETH_BRIDGE_ADDRESS.to_string(),
+            ETH_TOKEN_ADDRESS.to_string(),
+            NEAR_TOKEN_ACCOUNT.parse().unwrap(),
+            LITE_NODE_ACCOUNT.parse().unwrap(),
+            admin_list.clone(),
+        );
+
+        let state = contract.view_state();
+        assert_eq!(
+            state,
+            (
+                ETH_EVENT_SIGNATURE.to_string(),
+                ETH_BRIDGE_ADDRESS.to_string(),
+                ETH_TOKEN_ADDRESS.to_string(),
+                NEAR_TOKEN_ACCOUNT.parse().unwrap(),
+                LITE_NODE_ACCOUNT.parse().unwrap(),
+                admin_list,
+                0
+            )
+        );
+    }
+}
