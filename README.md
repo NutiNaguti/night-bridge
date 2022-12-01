@@ -8,10 +8,11 @@ This is my educational project to better understand how the Ethereum and NEAR Pr
 The essence of the project is to create a trustless bridge between two chains.
 </div>
 
-<br/>
-<br/>
-<br/>
-<br/>
+<br>
+
+
+**! ! ! Yes, I understand that the Bloom Filter is a probabilistic data structure and there is a chance of a false positive test result, but firstly, I considered the probability of such a response to be extremely small, and secondly, this is a training project and I strongly do not recommend using this principle in production ! ! !** 
+
 <br/>
 
 The bridge consists of four parts:
@@ -41,8 +42,6 @@ How it's work
 
 Known issues and roadmap
 ------------------------
-
-**! ! ! Yes, I understand that the Bloom Filter is a probabilistic data structure and there is a chance of a false positive test result, but firstly, I considered the probability of such a response to be extremely small, and secondly, this is a training project and I strongly do not recommend using this principle in production ! ! !** 
 
  - [ ] Build an Oracle
  - [ ] Implement sending tokens from Ethereum to NEAR
