@@ -1,8 +1,4 @@
-
-
-use near_sdk::{
-    borsh::{self, BorshDeserialize, BorshSerialize},
-};
+use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use serde::{Deserialize, Serialize};
 use serde_big_array::{self, BigArray};
 use uint::unroll;
