@@ -1,0 +1,90 @@
+.App {
+  text-align: center;
+  background-color: white;
+  color: black;
+  height: 100%;
+  padding-top: 6vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+}
+
+.header {
+  margin-bottom: 5vh;
+}
+
+.logo {
+  height: 200px;
+  pointer-events: none;
+}
+
+.content {
+  min-width: 50vw;
+  text-align: center;
+  display: block;
+  margin-bottom: 10vh;
+}
+
+.input {
+  margin: 0 2vh;
+}
+
+#address {
+  min-width: 200px;
+  width: 100%;
+  padding: 10px 16px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  font-size: 0.8em;
+}
+
+.send {
+  transition-duration: 0.4s;
+  min-width: 130px;
+}
+
+.send:hover {
+  background-color: black;
+  color: white;
+}
+
+.button {
+  background-color: #222;
+  border-radius: 4px;
+  border-style: none;
+  box-sizing: border-box;
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+  margin: 20px 0;
+  max-width: none;
+  min-height: 44px;
+  min-width: 10px;
+  outline: none;
+  overflow: hidden;
+  padding: 9px 20px 8px;
+  position: relative;
+  text-align: center;
+  width: 130px;
+}
+
+.footer {
+  display: flex;
+  flex: 1;
+  border-top: 1px solid #eaeaea;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  font-size: 16px;
+}

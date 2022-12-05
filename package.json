@@ -1,41 +1,19 @@
 {
-  "name": "crystal-bridge",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.1.1",
-    "@testing-library/user-event": "^14.1.1",
-    "buffer": "^6.0.3",
-    "ethers": "^5.7.2",
-    "near-api-js": "^0.44.2",
-    "prettier": "^2.8.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1"
-  },
+  "name": "vite-template-solid",
+  "version": "0.0.0",
+  "description": "",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "vite",
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^3.0.9",
+    "vite-plugin-solid": "^2.3.0"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "dependencies": {
+    "solid-js": "^1.5.1"
   }
 }
