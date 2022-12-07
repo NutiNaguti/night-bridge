@@ -35,8 +35,6 @@ impl Bloom {
         let mask = bloom_bits - 1;
         let bloom_bytes = (log2(bloom_bits) + 7) / 8;
 
-        // let input = keccak256(input);
-
         // must be a power of 2
         assert_eq!(m & (m - 1), 0);
         // out of range

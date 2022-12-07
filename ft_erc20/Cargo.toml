@@ -1,5 +1,5 @@
 [package]
-name = "lite-node"
+name = "ft_erc20"
 version = "1.0.0"
 authors = ["NutiNaguti <derzhavin.danila@icloud.com>"]
 edition = "2021"

@@ -44,7 +44,8 @@ Known issues and roadmap
 ------------------------
 
  - [ ] Build an Oracle
- - [ ] Implement sending tokens from Ethereum to NEAR
+ - [x] Implement sending tokens from Ethereum to NEAR
  - [ ] Implement sending tokens from NEAR to Ethereum
+ - [ ] Gas optimisations
 
 ### Any suggestions and comments are welcome

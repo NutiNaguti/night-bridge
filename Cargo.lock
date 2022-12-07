@@ -867,6 +867,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "ft_erc20"
+version = "1.0.0"
+dependencies = [
+ "anyhow",
+ "base64 0.13.1",
+ "near-sdk",
+ "near-units",
+ "serde",
+ "serde-big-array",
+ "serde_json",
+ "tokio",
+ "uint",
+ "workspaces",
+]
+
+[[package]]
 name = "funty"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1269,10 +1285,16 @@ dependencies = [
 name = "lite-node"
 version = "1.0.0"
 dependencies = [
+ "anyhow",
+ "base64 0.13.1",
  "near-sdk",
+ "near-units",
  "serde",
  "serde-big-array",
+ "serde_json",
+ "tokio",
  "uint",
+ "workspaces",
 ]
 
 [[package]]
