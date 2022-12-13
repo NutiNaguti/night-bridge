@@ -12,7 +12,6 @@ near-sdk = "4.0.0"
 uint = { version = "0.9.3", default-features = false }
 serde-big-array = "0.4.1"
 serde = "1.0.147"
-erc20 = { git = "https://github.com/NutiNaguti/erc20-near" }
 
 [dev-dependencies]
 anyhow = "1.0"
