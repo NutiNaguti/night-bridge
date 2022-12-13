@@ -747,6 +747,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "erc20"
+version = "0.1.0"
+source = "git+https://github.com/NutiNaguti/erc20-near#848caf2c76f26de8509e91b137353101c74736a0"
+dependencies = [
+ "near-sdk",
+ "uint",
+]
+
+[[package]]
 name = "event-listener"
 version = "2.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -872,6 +881,7 @@ version = "1.0.0"
 dependencies = [
  "anyhow",
  "base64 0.13.1",
+ "erc20",
  "near-sdk",
  "near-units",
  "serde",
