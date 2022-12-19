@@ -56,10 +56,6 @@ impl Bridge {
             admin_set.insert(e);
         }
 
-        fun_coin::ext(near_token_account.clone())
-            .with_static_gas(Gas(5 * TGAS))
-            .internal_register(env::current_account_id());
-
         Self {
             eth_event_signature,
             eth_bridge_address,
@@ -150,7 +146,7 @@ impl Bridge {
             let amount = 1;
             let promise = fun_coin::ext(self.near_token_account.clone())
                 .with_static_gas(Gas(5 * TGAS))
-                .mint(receiver.clone(), json_types::U128(amount));
+                .mint(receiver.clone(), amount);
 
             promise.then(
                 Self::ext(env::current_account_id())

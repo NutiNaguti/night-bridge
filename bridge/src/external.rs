@@ -17,7 +17,6 @@ trait LiteNode {
 
 #[ext_contract(fun_coin)]
 trait FunCoin {
-    fn internal_register(&mut self, account_id: AccountId);
-    fn mint(&mut self, account_id: AccountId, amount: U128);
-    fn burn(&mut self, account_id: AccountId, amount: U128);
+    fn mint(&mut self, account_id: AccountId, amount: u64);
+    fn burn(&mut self, account_id: AccountId, amount: u64);
 }
