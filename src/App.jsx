@@ -1,7 +1,15 @@
 import logo from './bridge.svg';
 import styles from './App.module.css';
+import { isNearWalletSignedIn, signInNearWallet, signOutNearWaller } from './scripts/nearWallet';
+import { createSignal, onMount } from 'solid-js';
 
 function App() {
+  onMount(async () => {
+    if (!isNearWalletSignedIn()) {
+      signInNearWallet();
+    }
+  });
+
   return (
     <>
       <div class={styles.App}>
@@ -17,7 +25,7 @@ function App() {
             <label for='address'>NEAR address</label>
             <input id={styles.address}></input>
           </div>
-          <button class={styles.button}>Send</button>
+          <button class={styles.button} >Send</button>
         </div>
         <footer class={styles.footer}>
           <a href='https://github.com/NutiNaguti'>&#9001;NutiNaguti&nbsp;</a>
