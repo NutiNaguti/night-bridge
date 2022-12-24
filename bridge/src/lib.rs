@@ -37,6 +37,7 @@ pub struct Bridge {
     lite_node_account: AccountId,
     admin_set: UnorderedSet<AccountId>,
     validated_transfers: UnorderedMap<String, Transfer>,
+    test: String,
 }
 
 #[near_bindgen]
@@ -64,6 +65,7 @@ impl Bridge {
             lite_node_account,
             admin_set,
             validated_transfers: UnorderedMap::new(StorageKey::TransferMap),
+            test: String::from("Hi!"),
         }
     }
 
@@ -218,6 +220,19 @@ impl Bridge {
     pub fn withdrow_fees(&self, _admin_index: usize) {
         require!(self.admin_set.contains(&env::predecessor_account_id()));
         //TODO
+    }
+
+    // =========== Dev ===========
+    // ---------------------------
+
+    pub fn test_view(&self) -> &str {
+        "Hello world!"
+    }
+
+    pub fn test_change(&mut self, test: String) -> String {
+        require!(self.admin_set.contains(&env::predecessor_account_id()));
+        self.test = test.clone();
+        test
     }
 }
 
