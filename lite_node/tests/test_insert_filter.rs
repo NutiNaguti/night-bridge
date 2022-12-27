@@ -44,7 +44,7 @@ async fn test_insert_filter() -> anyhow::Result<()> {
 
     assert_eq!(true, outcome.is_success());
 
-    let outcome_result: serde_json::Value = outcome.json()?;
+    let _outcome_result: serde_json::Value = outcome.json()?;
 
     // let decoded_blooom = base64::decode(&outcome_result).unwrap();
 

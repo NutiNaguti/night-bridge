@@ -2,8 +2,8 @@ use erc20::*;
 use near_sdk::{
     borsh::{self, BorshDeserialize, BorshSerialize},
     env::predecessor_account_id,
-    near_bindgen, require,
-    store::{UnorderedSet, Vector},
+    log, near_bindgen, require,
+    store::UnorderedSet,
     AccountId, BorshStorageKey, PanicOnDefault,
 };
 
@@ -44,7 +44,8 @@ impl FunCoin {
     }
 
     pub fn mint(&mut self, to: AccountId, value: u64) {
-        require!(self.is_admin(predecessor_account_id()));
+        // require!(self.is_admin(predecessor_account_id()));
+        log!("to: {:?}\nvalue: {:?}", to, value);
         self.token.mint(to, value);
     }
 

@@ -5,8 +5,8 @@ use near_sdk::env;
 use near_sdk::serde::Serialize;
 use near_sdk::{self, collections::UnorderedSet, AccountId};
 use near_sdk::{
-    json_types, log, near_bindgen, require, BorshStorageKey, Gas, PanicOnDefault, Promise,
-    PromiseError, ONE_NEAR, ONE_YOCTO,
+    log, near_bindgen, require, BorshStorageKey, Gas, PanicOnDefault, Promise, PromiseError,
+    ONE_NEAR, ONE_YOCTO,
 };
 
 mod external;
@@ -144,8 +144,7 @@ impl Bridge {
         log!("call_result: {}", call_result);
 
         if call_result {
-            // TODO if user doesn't registered may need to register him
-            let amount = 1;
+            let amount = 100 * (10u64.pow(18));
             let promise = fun_coin::ext(self.near_token_account.clone())
                 .with_static_gas(Gas(5 * TGAS))
                 .mint(receiver.clone(), amount);
@@ -220,6 +219,21 @@ impl Bridge {
     pub fn withdrow_fees(&self, _admin_index: usize) {
         require!(self.admin_set.contains(&env::predecessor_account_id()));
         //TODO
+    }
+
+    pub fn set_eth_event_signature(&mut self, eth_event_signature: String) {
+        require!(self.admin_set.contains(&env::predecessor_account_id()));
+        self.eth_event_signature = eth_event_signature;
+    }
+
+    pub fn set_eth_bridge_address(&mut self, eth_bridge_address: String) {
+        require!(self.admin_set.contains(&env::predecessor_account_id()));
+        self.eth_bridge_address = eth_bridge_address;
+    }
+
+    pub fn set_eth_token_address(&mut self, eth_token_address: String) {
+        require!(self.admin_set.contains(&env::predecessor_account_id()));
+        self.eth_token_address = eth_token_address;
     }
 
     // =========== Dev ===========
