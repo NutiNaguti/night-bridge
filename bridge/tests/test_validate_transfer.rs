@@ -1,5 +1,4 @@
-use ethabi::{ethereum_types::H160, *};
-use near_sdk::ONE_NEAR;
+use near_sdk::{json_types::U128, ONE_NEAR};
 use serde_json::{json, Value};
 
 const BRIDGE_FILEPATH: &str = "../out/bridge.wasm";
@@ -47,7 +46,7 @@ async fn test_validate() -> anyhow::Result<()> {
 
     let outcome = erc20_contract
         .call("init")
-        .args_json(json!({"name": "FunCoin", "symbol": "FUNC", "decimals": 18, "total_supply": 10 ^ 9, "admin_list": vec![ADMIN_ACCOUNT_ID]}))
+        .args_json(json!({"name": "FunCoin", "symbol": "FUNC", "decimals": 18, "total_supply": U128(10u128.pow(18)), "admin_list": vec![ADMIN_ACCOUNT_ID]}))
         .max_gas()
         .transact()
         .await?;
@@ -95,7 +94,6 @@ async fn test_validate() -> anyhow::Result<()> {
         .await?;
 
     println!("{:#?}", outcome);
-    println!("{:?}", worker.root_account());
     assert_eq!(true, outcome.is_success());
 
     Ok(())

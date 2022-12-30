@@ -1,8 +1,6 @@
-use near_sdk::{ext_contract, AccountId};
+use near_sdk::{ext_contract, json_types::U128, AccountId};
 
 pub const TGAS: u64 = 1_000_000_000_000;
-// pub const NO_DEPOSIT: u128 = 0;
-// pub const XCC_SUCCESS: u64 = 1;
 
 #[ext_contract(line_node)]
 trait LiteNode {
@@ -17,6 +15,6 @@ trait LiteNode {
 
 #[ext_contract(fun_coin)]
 trait FunCoin {
-    fn mint(&mut self, to: AccountId, value: u64);
-    fn burn(&mut self, account_id: AccountId, amount: u64);
+    fn mint(&mut self, to: AccountId, value: U128);
+    fn burn(&mut self, account_id: AccountId, amount: U128);
 }

@@ -61,8 +61,9 @@ impl LiteNode {
 
         let proof: [u8; 32] = keccak256(&proof).try_into().unwrap();
 
-        bloom.contains_input(event_signature) & bloom.contains_input(contract_address)
-        // & bloom.contains_input(proof)
+        bloom.contains_input(event_signature)
+            & bloom.contains_input(contract_address)
+            & bloom.contains_input(proof)
     }
 
     pub fn view_filter(&self, block_number: BlockNumber) -> Option<&Bloom> {

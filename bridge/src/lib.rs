@@ -2,12 +2,14 @@ use external::{fun_coin, line_node, TGAS};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::UnorderedMap;
 use near_sdk::env;
+use near_sdk::json_types::U128;
 use near_sdk::serde::Serialize;
 use near_sdk::{self, collections::UnorderedSet, AccountId};
 use near_sdk::{
     log, near_bindgen, require, BorshStorageKey, Gas, PanicOnDefault, Promise, PromiseError,
     ONE_NEAR, ONE_YOCTO,
 };
+use num::checked_pow;
 
 mod external;
 
@@ -144,7 +146,8 @@ impl Bridge {
         log!("call_result: {}", call_result);
 
         if call_result {
-            let amount = 100 * (10u64.pow(18));
+            let amount = U128(100 * (checked_pow(10, 18).unwrap()));
+            log!("amount: {:?}", amount);
             let promise = fun_coin::ext(self.near_token_account.clone())
                 .with_static_gas(Gas(5 * TGAS))
                 .mint(receiver.clone(), amount);
@@ -171,6 +174,7 @@ impl Bridge {
             panic!("{:?}", call_result);
         } else {
             //TODO
+            log!("Tokens transfered");
             self.validated_transfers.insert(
                 &proof,
                 &Transfer {
