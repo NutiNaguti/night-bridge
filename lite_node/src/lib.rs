@@ -14,8 +14,8 @@ mod utils;
 
 type BlockNumber = u64;
 
-#[derive(Serialize, Deserialize)]
-pub struct BloomRequest {
+#[derive(Serialize, Deserialize, BorshSerialize, BorshDeserialize)]
+pub struct InsertBloomFilterRequest {
     block_number: u64,
     logs: String,
 }
@@ -70,7 +70,7 @@ impl LiteNode {
         self.logs_filter.get(&block_number)
     }
 
-    pub fn insert_filter(&mut self, request: BloomRequest) {
+    pub fn insert_filter(&mut self, #[serializer(borsh)] request: InsertBloomFilterRequest) {
         let decoded_blooom = base64::decode(&request.logs).unwrap();
 
         match self.logs_filter.get(&request.block_number) {
@@ -133,7 +133,7 @@ mod tests {
         let mut contract = LiteNode::init();
 
         let encoded_logs = encode(LOGS);
-        let request = BloomRequest {
+        let request = InsertBloomFilterRequest {
             block_number: 1,
             logs: encoded_logs,
         };
@@ -153,7 +153,7 @@ mod tests {
         let mut contract = LiteNode::init();
 
         let encoded_logs = encode(LOGS);
-        let request = BloomRequest {
+        let request = InsertBloomFilterRequest {
             block_number: 1,
             logs: encoded_logs,
         };
