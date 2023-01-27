@@ -93,7 +93,6 @@ async fn test_validate() -> anyhow::Result<()> {
         .transact()
         .await?;
 
-    println!("{:#?}", outcome);
     assert_eq!(true, outcome.is_success());
 
     Ok(())
