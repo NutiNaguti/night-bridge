@@ -21,6 +21,13 @@ pub enum StorageKey {
     TransferMap,
 }
 
+#[derive(BorshDeserialize, BorshSerialize)]
+pub struct ValidateTransferRequest {
+    block_number: u64,
+    receiver: AccountId,
+    proof: String,
+}
+
 #[derive(Debug, BorshSerialize, BorshDeserialize, Serialize)]
 #[serde(crate = "near_sdk::serde")]
 pub struct Transfer {
@@ -39,7 +46,6 @@ pub struct Bridge {
     lite_node_account: AccountId,
     admin_set: UnorderedSet<AccountId>,
     validated_transfers: UnorderedMap<String, Transfer>,
-    test: String,
 }
 
 #[near_bindgen]
@@ -67,7 +73,6 @@ impl Bridge {
             lite_node_account,
             admin_set,
             validated_transfers: UnorderedMap::new(StorageKey::TransferMap),
-            test: String::from("Hi!"),
         }
     }
 
@@ -103,29 +108,28 @@ impl Bridge {
     #[payable]
     pub fn validate_transfer(
         &mut self,
-        block_number: u64,
-        receiver: AccountId,
-        proof: String,
+        #[serializer(borsh)] request: ValidateTransferRequest,
     ) -> Promise {
-        if let Some(_) = self.validated_transfers.get(&proof) {
+        if let Some(_) = self.validated_transfers.get(&request.proof) {
             panic!("Already completed transfer");
         }
         let deposit = env::attached_deposit();
         require!(deposit >= VALIDATE_TRANSFER_FEE, "Not enougth funds");
+        let validate_request = external::ValidateRequest {
+            block_number: request.block_number,
+            eth_bridge_address: self.eth_bridge_address.clone(),
+            event_signature: self.eth_event_signature.clone(),
+            proof: request.proof.clone(),
+        };
         let promise = line_node::ext(self.lite_node_account.clone())
             .with_static_gas(Gas(10 * TGAS))
-            .validate(
-                block_number,
-                self.eth_bridge_address.clone(),
-                self.eth_event_signature.clone(),
-                proof.clone(),
-            );
+            .validate(validate_request);
 
         promise.then(
             Self::ext(env::current_account_id())
                 .with_static_gas(Gas(10 * TGAS))
                 .with_attached_deposit(ONE_YOCTO)
-                .validate_callback(block_number, receiver, &proof),
+                .validate_callback(request),
         )
     }
 
@@ -133,9 +137,7 @@ impl Bridge {
     #[payable]
     pub fn validate_callback(
         &mut self,
-        block_number: u64,
-        receiver: AccountId,
-        proof: &String,
+        #[serializer(borsh)] request: ValidateTransferRequest,
         #[callback_result] call_result: Result<bool, PromiseError>,
     ) -> Promise {
         if call_result.is_err() {
@@ -150,12 +152,12 @@ impl Bridge {
             log!("amount: {:?}", amount);
             let promise = fun_coin::ext(self.near_token_account.clone())
                 .with_static_gas(Gas(5 * TGAS))
-                .mint(receiver.clone(), amount);
+                .mint(request.receiver.clone(), amount);
 
             promise.then(
                 Self::ext(env::current_account_id())
                     .with_static_gas(Gas(10 * TGAS))
-                    .complete_transfer_callback(block_number, receiver, proof),
+                    .complete_transfer_callback(request),
             )
         } else {
             panic!("Proof are invalid");
@@ -165,10 +167,8 @@ impl Bridge {
     #[private]
     pub fn complete_transfer_callback(
         &mut self,
+        #[serializer(borsh)] request: ValidateTransferRequest,
         #[callback_result] call_result: Result<(), PromiseError>,
-        block_number: u64,
-        receiver: AccountId,
-        proof: &String,
     ) {
         if call_result.is_err() {
             panic!("{:?}", call_result);
@@ -176,11 +176,11 @@ impl Bridge {
             //TODO
             log!("Tokens transfered");
             self.validated_transfers.insert(
-                &proof,
+                &request.proof,
                 &Transfer {
                     near_timestamp: env::block_timestamp(),
-                    eth_block_number: block_number,
-                    receiver,
+                    eth_block_number: request.block_number,
+                    receiver: request.receiver,
                 },
             );
         }
@@ -238,19 +238,6 @@ impl Bridge {
     pub fn set_eth_token_address(&mut self, eth_token_address: String) {
         require!(self.admin_set.contains(&env::predecessor_account_id()));
         self.eth_token_address = eth_token_address;
-    }
-
-    // =========== Dev ===========
-    // ---------------------------
-
-    pub fn test_view(&self) -> &str {
-        "Hello world!"
-    }
-
-    pub fn test_change(&mut self, test: String) -> String {
-        require!(self.admin_set.contains(&env::predecessor_account_id()));
-        self.test = test.clone();
-        test
     }
 }
 

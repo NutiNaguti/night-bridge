@@ -8,9 +8,8 @@ use crate::utils::log2;
 pub const BLOOM_BITS: u32 = 3;
 pub const BLOOM_SIZE: usize = 256;
 
-#[derive(BorshSerialize, BorshDeserialize, Serialize, Deserialize)]
+#[derive(BorshSerialize, BorshDeserialize)]
 pub struct Bloom {
-    #[serde(with = "BigArray")]
     pub logs: [u8; 256],
 }
 

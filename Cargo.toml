@@ -1,5 +1,5 @@
 [workspace]
-members = ["bridge", "ft", "lite_node", "ft_erc20"]
+members = ["bridge", "lite_node", "ft_erc20"]
 
 [profile.release]
 codegen-units = 1

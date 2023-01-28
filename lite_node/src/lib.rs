@@ -7,17 +7,24 @@ use near_sdk::{
     PanicOnDefault,
 };
 use near_sdk::{near_bindgen, BorshStorageKey};
-use serde::{Deserialize, Serialize};
 
 mod bloom;
 mod utils;
 
 type BlockNumber = u64;
 
-#[derive(Serialize, Deserialize, BorshSerialize, BorshDeserialize)]
+#[derive(BorshSerialize, BorshDeserialize)]
+pub struct ValidateRequest {
+    block_number: u64,
+    eth_bridge_address: String,
+    event_signature: String,
+    proof: String,
+}
+
+#[derive(BorshSerialize, BorshDeserialize)]
 pub struct InsertBloomFilterRequest {
     block_number: u64,
-    logs: String,
+    logs: [u8; 256],
 }
 
 #[derive(BorshSerialize, BorshStorageKey)]
@@ -42,22 +49,16 @@ impl LiteNode {
     }
 
     #[payable]
-    pub fn validate(
-        &mut self,
-        block_number: u64,
-        eth_contract_address: String,
-        event_signature: String,
-        proof: String,
-    ) -> bool {
-        let bloom = self.logs_filter.get(&block_number).unwrap();
-        let eth_contract_address = utils::decode_hex(&eth_contract_address).unwrap();
-        let proof = utils::decode_hex(&proof).unwrap();
+    pub fn validate(&mut self, #[serializer(borsh)] request: ValidateRequest) -> bool {
+        let bloom = self.logs_filter.get(&request.block_number).unwrap();
+        let eth_bridge_address = utils::decode_hex(&request.eth_bridge_address).unwrap();
+        let proof = utils::decode_hex(&request.proof).unwrap();
 
-        let event_signature: [u8; 32] = keccak256(&keccak256(event_signature.as_bytes()))
+        let event_signature: [u8; 32] = keccak256(&keccak256(request.event_signature.as_bytes()))
             .try_into()
             .unwrap();
 
-        let contract_address: [u8; 32] = keccak256(&eth_contract_address).try_into().unwrap();
+        let contract_address: [u8; 32] = keccak256(&eth_bridge_address).try_into().unwrap();
 
         let proof: [u8; 32] = keccak256(&proof).try_into().unwrap();
 
@@ -96,7 +97,7 @@ impl LiteNode {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use near_sdk::{base64::encode, test_utils::VMContextBuilder, testing_env};
+    use near_sdk::{test_utils::VMContextBuilder, testing_env};
 
     const LOGS: [u8; 256] = [
         48, 47, 17, 175, 193, 19, 107, 92, 8, 208, 196, 106, 140, 50, 17, 65, 0, 173, 162, 242,
@@ -132,10 +133,9 @@ mod tests {
 
         let mut contract = LiteNode::init();
 
-        let encoded_logs = encode(LOGS);
         let request = InsertBloomFilterRequest {
             block_number: 1,
-            logs: encoded_logs,
+            logs: LOGS,
         };
 
         contract.insert_filter(request);
@@ -152,19 +152,19 @@ mod tests {
 
         let mut contract = LiteNode::init();
 
-        let encoded_logs = encode(LOGS);
         let request = InsertBloomFilterRequest {
             block_number: 1,
-            logs: encoded_logs,
+            logs: LOGS,
         };
 
         contract.insert_filter(request);
-        let validated = contract.validate(
-            1,
-            ETH_CONTRACT_ADDRESS.to_string(),
-            EVENT_SIGNATURE.to_string(),
-            PROOF.to_string(),
-        );
+        let validate_request = ValidateRequest {
+            block_number: 1,
+            eth_bridge_address: ETH_CONTRACT_ADDRESS.to_string(),
+            event_signature: EVENT_SIGNATURE.to_string(),
+            proof: PROOF.to_string(),
+        };
+        let validated = contract.validate(validate_request);
         assert_eq!(true, validated);
     }
 }

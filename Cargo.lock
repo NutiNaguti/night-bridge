@@ -331,7 +331,6 @@ version = "1.0.0"
 dependencies = [
  "anyhow",
  "base64 0.13.1",
- "ft",
  "hex-literal",
  "lite-node",
  "near-sdk",
@@ -865,15 +864,6 @@ checksum = "9564fc758e15025b46aa6643b1b77d047d1a56a1aea6e01002ac0c7026876213"
 dependencies = [
  "libc",
  "winapi",
-]
-
-[[package]]
-name = "ft"
-version = "1.0.0"
-dependencies = [
- "near-contract-standards",
- "near-sdk",
- "uint",
 ]
 
 [[package]]
@@ -1433,18 +1423,6 @@ dependencies = [
  "sha2 0.10.6",
  "smart-default",
  "tracing",
-]
-
-[[package]]
-name = "near-contract-standards"
-version = "4.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7bacc932e79b26472797adfb21689294b6f90960d1570daaf1e0b682b59fcb35"
-dependencies = [
- "near-sdk",
- "schemars",
- "serde",
- "serde_json",
 ]
 
 [[package]]
