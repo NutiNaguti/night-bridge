@@ -106,7 +106,6 @@ async fn test_validate() -> anyhow::Result<()> {
         .await?;
 
     println!("{:#?}", outcome);
-
     assert_eq!(true, outcome.is_success());
 
     let init_args = get_init_args_json(Some(erc20_contract.id()), Some(lite_node_contract.id()));
@@ -118,6 +117,7 @@ async fn test_validate() -> anyhow::Result<()> {
         .transact()
         .await?;
 
+    println!("{:#?}", outcome);
     assert_eq!(true, outcome.is_success());
 
     let validate_transfer_request = ValidateTransferRequest {
@@ -133,6 +133,7 @@ async fn test_validate() -> anyhow::Result<()> {
         .transact()
         .await?;
 
+    println!("{:#?}", outcome);
     assert_eq!(true, outcome.is_success());
 
     Ok(())

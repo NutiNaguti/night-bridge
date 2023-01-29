@@ -2,7 +2,8 @@ use bloom::Bloom;
 use near_sdk::{
     self, base64,
     borsh::{self, BorshDeserialize, BorshSerialize},
-    env::keccak256,
+    env::{keccak256, log},
+    log,
     store::UnorderedMap,
     PanicOnDefault,
 };
@@ -21,7 +22,7 @@ pub struct ValidateRequest {
     proof: String,
 }
 
-#[derive(BorshSerialize, BorshDeserialize)]
+#[derive(Debug, BorshSerialize, BorshDeserialize)]
 pub struct InsertBloomFilterRequest {
     block_number: u64,
     logs: [u8; 256],
@@ -67,30 +68,23 @@ impl LiteNode {
             & bloom.contains_input(proof)
     }
 
+    #[result_serializer(borsh)]
     pub fn view_filter(&self, block_number: BlockNumber) -> Option<&Bloom> {
         self.logs_filter.get(&block_number)
     }
 
     pub fn insert_filter(&mut self, #[serializer(borsh)] request: InsertBloomFilterRequest) {
-        let decoded_blooom = base64::decode(&request.logs).unwrap();
-
+        log!("{:#?}", request);
         match self.logs_filter.get(&request.block_number) {
             Some(_) => panic!("Already added"),
-            _ => self.logs_filter.insert(
-                request.block_number,
-                Bloom {
-                    logs: decoded_blooom.try_into().unwrap(),
-                },
-            ),
+            _ => self
+                .logs_filter
+                .insert(request.block_number, Bloom { logs: request.logs }),
         };
     }
 
     pub fn remove_filter(&mut self, block_number: BlockNumber) {
         self.logs_filter.remove(&block_number);
-    }
-
-    pub fn test(&self) -> &str {
-        "Hello world!"
     }
 }
 

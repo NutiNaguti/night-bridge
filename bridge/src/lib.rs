@@ -160,7 +160,7 @@ impl Bridge {
                     .complete_transfer_callback(request),
             )
         } else {
-            panic!("Proof are invalid");
+            panic!("Invalid proof");
         }
     }
 
